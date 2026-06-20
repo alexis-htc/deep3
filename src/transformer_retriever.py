@@ -30,8 +30,7 @@ class TransformerRetriever:
         print("🧠 Building semantic index...")
         self.corpus = corpus_texts
         
-        # YOUR CODE HERE: Encode corpus using sentence transformer
-        self.corpus_embeddings = None
+        self.corpus_embeddings = self.model.encode(corpus_texts, show_progress_bar=True, convert_to_numpy=True)
         
         print(f"✅ Semantic index built for {len(corpus_texts):,} documents")
         if len(corpus_texts) > 0 and self.corpus_embeddings is not None:
@@ -44,11 +43,14 @@ class TransformerRetriever:
             
         print(f"🔍 Running semantic retrieval for {len(query_texts)} queries...")
         
-        # YOUR CODE HERE: Encode query texts using the transformer model
-        query_embeddings = None
+        query_embeddings = self.model.encode(query_texts, show_progress_bar=False, convert_to_numpy=True)
         
-        # YOUR CODE HERE: Calculate similarities and retrieve top-k documents
+        similarities = cosine_similarity(query_embeddings, self.corpus_embeddings)
+        
         results = {}
+        for q_idx in range(len(query_texts)):
+            top_k_indices = np.argsort(similarities[q_idx])[::-1][:k]
+            results[q_idx] = top_k_indices.tolist()
         
         print(f"✅ Retrieved top-{k} documents using semantic similarity")
         return results

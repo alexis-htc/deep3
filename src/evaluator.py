@@ -23,7 +23,11 @@ class IRMetrics:
             if q_id not in qrels:
                 continue
             
-            # YOUR CODE HERE: Calculate recall for this query
+            relevant_docs = set(qrels[q_id].keys())
+            retrieved_at_k = set(results[q_id][:k])
+            relevant_found = len(relevant_docs & retrieved_at_k)
+            recall = relevant_found / len(relevant_docs) if relevant_docs else 0.0
+            recall_scores.append(recall)
             
         return np.mean(recall_scores) if recall_scores else 0.0
 
@@ -37,8 +41,11 @@ class IRMetrics:
             if q_id not in qrels:
                 continue
             
-            # YOUR CODE HERE: Calculate precision for this query
-
+            relevant_docs = set(qrels[q_id].keys())
+            retrieved_at_k = set(results[q_id][:k])
+            relevant_found = len(relevant_docs & retrieved_at_k)
+            precision = relevant_found / k if k > 0 else 0.0
+            precision_scores.append(precision)
             
         return np.mean(precision_scores) if precision_scores else 0.0
 
@@ -52,8 +59,13 @@ class IRMetrics:
             if q_id not in qrels:
                 continue
             
-            # YOUR CODE HERE: Calculate MRR for this query
-
+            relevant_docs = set(qrels[q_id].keys())
+            rr = 0.0
+            for rank, doc_id in enumerate(results[q_id], 1):
+                if doc_id in relevant_docs:
+                    rr = 1.0 / rank
+                    break
+            reciprocal_ranks.append(rr)
             
         return np.mean(reciprocal_ranks) if reciprocal_ranks else 0.0
 
